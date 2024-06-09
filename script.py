@@ -54,6 +54,8 @@ def download_data_to_file(name, boundary, time, retry_count):
   formatted_boundaries = get_normalized_boundary_string(a,b,c,d)
   data = download_data(formatted_boundaries, time)
   if(data is not None):
+ #   for feature in data["features"]:
+ #       id = feature["properties"]["segment_id"]
     print("Found {} features.".format(len(data["features"])))
     with open(target_folder + "/" + name + ".json", 'w') as f:
       json.dump(data, f)
@@ -67,8 +69,27 @@ def download_data_to_file(name, boundary, time, retry_count):
 def ensure_results_path_exists():
   Path(target_folder).mkdir(parents=True, exist_ok=True)
 
-if __name__ == '__main__':
-  time = "2021-06-25 10:00:00Z"
-  ensure_results_path_exists()
-  for name, gemeinde_boundaries in get_gemeinde_boundaries():
-    download_data_to_file(name, gemeinde_boundaries, time, retry_count)
+def test():
+  url = "https://telraam-api.net/v1/reports/traffic"
+  body = {
+      "level":"segments",
+      "format":"per-hour",
+      "id": "9000001463",
+  "time_start": "2024-03-12 07:00:00Z",
+  "time_end": "2024-06-08 09:00:00Z"
+  }
+  headers = {
+    'X-Api-Key': our_secrets.telraamApiKey
+  }
+  payload = str(body)
+  response = requests.request("POST", url, headers=headers, data=payload)
+  jsonObj = response.json()
+  with open("test.json", 'w') as f:
+    json.dump(jsonObj, f)
+
+test()
+# if __name__ == '__main__':
+#   time = "2021-06-25 10:00:00Z"
+#   ensure_results_path_exists()
+#   for name, gemeinde_boundaries in get_gemeinde_boundaries():
+#     download_data_to_file(name, gemeinde_boundaries, time, retry_count)
